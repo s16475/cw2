@@ -7,15 +7,19 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace cw2.Controllers
 {
+    // zadanie 3
     [ApiController]
     [Route("api/students")]
     public class StudentsController : ControllerBase
     {
+        
+        //GetStudent() - zad 3
         public string GetStudent()
         {
             return "Kowalski, Malewski, Andrzejewski";
         }
-
+      
+        // zadanie 4
         [HttpGet("{id}")]
         public IActionResult GetStudent(int id)
         {
@@ -30,10 +34,16 @@ namespace cw2.Controllers
             return NotFound("Nie znaleziono studenta");
         }
 
+        //GetStudents() - zad 5
+        [HttpGet]
+        public string GetStudents(string orderBy)
+        {
+            return $"Kowalski, Malewski, Andrzejewski sortowanie={orderBy}";
+        }
+
+
+
+
 
     }
-
-    
-
-
 }
