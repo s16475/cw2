@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using cw2.Models;
 
 namespace cw2.Controllers
 {
@@ -41,6 +42,15 @@ namespace cw2.Controllers
             return $"Kowalski, Malewski, Andrzejewski sortowanie={orderBy}";
         }
 
+        //zadanie 6
+        [HttpPost]
+        public IActionResult CreateStudent(Student student)
+        {
+            // ... add to datbase
+            // ... generating index number
+            student.IndexNumber = $"s{new Random().Next(1, 20000)}";
+            return Ok(student);
+        }
 
 
 
