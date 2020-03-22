@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using cw2.Models;
+using cw2.DAL;
 
 namespace cw2.Controllers
 {
@@ -13,7 +10,20 @@ namespace cw2.Controllers
     [Route("api/students")]
     public class StudentsController : ControllerBase
     {
-        
+        // zadanie 8        
+        private readonly IDbService _dbService;
+
+        public StudentsController(IDbService dbService)
+        {
+            _dbService = dbService;
+        }
+
+        [HttpGet]
+        public IActionResult GetStudents(string orderBy)
+        {
+            return Ok(_dbService.GetStudents());
+        }
+
         //GetStudent() - zad 3
         public string GetStudent()
         {
@@ -35,12 +45,14 @@ namespace cw2.Controllers
             return NotFound("Nie znaleziono studenta");
         }
 
-        //GetStudents() - zad 5
+        //GetStudents() - zad 5 
+        /*
         [HttpGet]
         public string GetStudents(string orderBy)
         {
             return $"Kowalski, Malewski, Andrzejewski sortowanie={orderBy}";
         }
+        */
 
         //zadanie 6
         [HttpPost]
@@ -64,9 +76,5 @@ namespace cw2.Controllers
         {
             return Ok("Usunieto");
         }
-
-
-
-
     }
 }
