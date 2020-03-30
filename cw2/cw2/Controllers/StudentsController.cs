@@ -5,12 +5,12 @@ using cw2.DAL;
 
 namespace cw2.Controllers
 {
-    // zadanie 3
+
     [ApiController]
     [Route("api/students")]
     public class StudentsController : ControllerBase
     {
-        // zadanie 8        
+              
         private readonly IDbService _dbService;
 
         public StudentsController(IDbService dbService)
@@ -24,7 +24,7 @@ namespace cw2.Controllers
             return Ok(_dbService.GetStudents());
         }
 
-        //GetStudent() - zad 3
+       
         public string GetStudent()
         {
             return "Kowalski, Malewski, Andrzejewski";
@@ -45,16 +45,6 @@ namespace cw2.Controllers
             return NotFound("Nie znaleziono studenta");
         }
 
-        //GetStudents() - zad 5 
-        /*
-        [HttpGet]
-        public string GetStudents(string orderBy)
-        {
-            return $"Kowalski, Malewski, Andrzejewski sortowanie={orderBy}";
-        }
-        */
-
-        //zadanie 6
         [HttpPost]
         public IActionResult CreateStudent(Student student)
         {
@@ -64,7 +54,6 @@ namespace cw2.Controllers
             return Ok(student);
         }
 
-        //zadanie 7
         [HttpPut]
         public IActionResult UpdateStudent(Student student)
         {
