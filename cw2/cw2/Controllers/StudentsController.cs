@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using cw2.Models;
 using cw2.DAL;
+using System.Collections.Generic;
+using System.Data.SqlClient;
 
 namespace cw2.Controllers
 {
@@ -12,6 +14,7 @@ namespace cw2.Controllers
     {
               
         private readonly IDbService _dbService;
+        private const string ConString = "Data Source=db-mssql;Initial Catalog=s16475;Integrated Security=True";
 
         public StudentsController(IDbService dbService)
         {
@@ -21,10 +24,31 @@ namespace cw2.Controllers
         [HttpGet]
         public IActionResult GetStudents(string orderBy)
         {
-            return Ok(_dbService.GetStudents());
+            var list = new List<Student>();
+
+            using (SqlConnection con = new SqlConnection(ConString))
+            using (SqlCommand com = new SqlCommand())
+            {
+                com.Connection = con;
+                com.CommandText = "select * from students";
+
+                con.Open();
+                SqlDataReader dr = com.ExecuteReader();
+                while (dr.Read())
+                {
+                    var st = new Student();
+                    st.IndexNumber = dr["IndexNumber"].ToString();
+                    st.FirstName = dr["FirstName"].ToString();
+                    st.LastName = dr["LastName"].ToString();
+                    list.Add(st);
+                }
+
+            }
+
+            return Ok(list);
         }
 
-       
+
         public string GetStudent()
         {
             return "Kowalski, Malewski, Andrzejewski";
