@@ -14,7 +14,7 @@ namespace cw2.Controllers
     {
               
         private readonly IDbService _dbService;
-        private const string ConString = "Data Source=db-mssql;Initial Catalog=s16475;Integrated Security=True";
+        private const string ConString = "Server=localhost;Database=master;User Id = sa; Password=2X@G3382;";
 
         public StudentsController(IDbService dbService)
         {
@@ -30,7 +30,7 @@ namespace cw2.Controllers
             using (SqlCommand com = new SqlCommand())
             {
                 com.Connection = con;
-                com.CommandText = "select * from students";
+                com.CommandText = "select * from Student";
 
                 con.Open();
                 SqlDataReader dr = com.ExecuteReader();
