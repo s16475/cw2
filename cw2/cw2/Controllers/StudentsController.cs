@@ -22,6 +22,7 @@ namespace cw2.Controllers
         }
 
         // Zad 4.2
+
         [HttpGet]
         public IActionResult GetStudents(string orderBy)
         {
@@ -49,6 +50,36 @@ namespace cw2.Controllers
                 }
             }
             return Ok(list);
+        }
+
+
+        // Zad. 4.3
+
+        [HttpGet("{id}")]
+        public IActionResult GetStudent(string id)
+        {
+            var student = new StudentInfoDTO();
+            using (SqlConnection connection = new SqlConnection(ConString))
+            using (SqlCommand command = new SqlCommand())
+            {
+                command.Connection = connection;
+                command.CommandText = "select s.FirstName, s.LastName, s.BirthDate, s.IndexNumber, st.Name, e.Semester from Student s " +
+                    "join Enrollment e on e.IdEnrollment = s.IdEnrollment join Studies st on st.IdStudy = e.IdStudy " +
+                    $"where s.IndexNumber = '{id}'";
+                connection.Open();
+
+                SqlDataReader dataReader = command.ExecuteReader();
+                dataReader.Read();
+
+                student.FirstName = dataReader["FirstName"].ToString();
+                student.LastName = dataReader["LastName"].ToString();
+                student.Name = dataReader["Name"].ToString();
+                student.BirthData = dataReader["BirthDate"].ToString();
+                student.Semester = dataReader["Semester"].ToString();
+
+            }
+
+            return Ok(student);
         }
 
         // Zad 4.1
@@ -79,13 +110,12 @@ namespace cw2.Controllers
         }
         */
 
-
         public string GetStudent()
         {
             return "Kowalski, Malewski, Andrzejewski";
         }
       
-        // zadanie 4
+        /*
         [HttpGet("{id}")]
         public IActionResult GetStudent(int id)
         {
@@ -99,6 +129,8 @@ namespace cw2.Controllers
             }
             return NotFound("Nie znaleziono studenta");
         }
+        */
+
 
         [HttpPost]
         public IActionResult CreateStudent(Student student)
