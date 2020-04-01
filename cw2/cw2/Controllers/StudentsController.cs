@@ -21,6 +21,38 @@ namespace cw2.Controllers
             _dbService = dbService;
         }
 
+        // Zad 4.2
+        [HttpGet]
+        public IActionResult GetStudents(string orderBy)
+        {
+            var list = new List<StudentInfoDTO>();
+            using (SqlConnection con = new SqlConnection(ConString))
+            using (SqlCommand com = new SqlCommand())
+            {
+                com.Connection = con;
+                com.CommandText = "select s.FirstName, s.LastName, s.BirthDate, st.Name, e.Semester from Student s " +
+                    "join Enrollment e on e.IdEnrollment = s.IdEnrollment join Studies st on st.IdStudy = e.IdStudy";
+                con.Open();
+
+                SqlDataReader dataReader = com.ExecuteReader();
+                while (dataReader.Read())
+                {
+                    var st = new StudentInfoDTO
+                    {
+                        FirstName = dataReader["FirstName"].ToString(),
+                        LastName = dataReader["LastName"].ToString(),
+                        Name = dataReader["Name"].ToString(),
+                        BirthData = dataReader["BirthDate"].ToString(),
+                        Semester = dataReader["Semester"].ToString()
+                    };
+                    list.Add(st);
+                }
+            }
+            return Ok(list);
+        }
+
+        // Zad 4.1
+        /*
         [HttpGet]
         public IActionResult GetStudents(string orderBy)
         {
@@ -42,11 +74,10 @@ namespace cw2.Controllers
                     st.LastName = dr["LastName"].ToString();
                     list.Add(st);
                 }
-
             }
-
             return Ok(list);
         }
+        */
 
 
         public string GetStudent()
