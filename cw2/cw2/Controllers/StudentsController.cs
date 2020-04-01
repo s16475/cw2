@@ -82,6 +82,10 @@ namespace cw2.Controllers
             return Ok(student);
         }
 
+        // Zad. 4.4
+        // zapytanie sql injection
+        // https://localhost:5001/api/students/' ;DROP TABLE Student;--
+
         // Zad 4.1
         /*
         [HttpGet]
