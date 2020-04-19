@@ -14,7 +14,7 @@ namespace cw2.Controllers
     {
               
         private readonly IDbService _dbService;
-        private const string ConString = "Server=localhost;Database=master;User Id = sa; Password=2X@G3382;";
+        private const string ConString = "Server=localhost;Database=master;User Id = sa; Password=B2@X7A89;";
 
         public StudentsController(IDbService dbService)
         {
