@@ -10,4 +10,10 @@
   </ItemGroup>
 
 
+  <ItemGroup>
+    <Folder Include="DTOs\" />
+    <Folder Include="DTOs\Requests\" />
+    <Folder Include="DTOs\Responses\" />
+    <Folder Include="DAL\" />
+  </ItemGroup>
 </Project>

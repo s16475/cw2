@@ -23,6 +23,7 @@ namespace cw2.Models
         public string LastName { get; set; }
         public DateTime Birthdate { get; set; }
         public string Studies { get; set; }
+        public int Semester { get; set; }
 
     }
 

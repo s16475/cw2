@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
+using cw2.DTOs.Requests;
+using cw2.DTOs.Responses;
 using cw2.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,8 +13,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace cw2.Controllers
 {
     [Route("api/enrollment")]
+    [ApiController]
     public class EnrollmentController : ControllerBase
     {
+        private const string ConString = "Server=localhost;Database=master;User Id = sa; Password=B2@X7A89;";
+
+
         // GET: api/values
         [HttpGet]
         public IEnumerable<string> Get()
@@ -28,11 +35,49 @@ namespace cw2.Controllers
 
         //zadanie 4.1 (5.1) - dodajemy nowych studentow
         [HttpPost]
-        public IActionResult EnrollStudent(Student newStudent)
+        public IActionResult EnrollStudent(EnrollStudentRequest request)
         {
+            var st = new Student();
+            st.FirstName = request.FirstName;
 
+            using (var con = new SqlConnection(ConString))
+            using (var com = new SqlCommand())
+            {
+                com.Connection = con;
+                con.Open();
+                var tran = con.BeginTransaction();
 
-            return Ok();
+                try
+                {
+                    //1. Czy studia istnieja?
+                    com.CommandText = "select IdStudies from studies where name=@name";
+                    com.Parameters.AddWithValue("name", request.Studies);
+
+                    var dr = com.ExecuteReader();
+                    if (!dr.Read())
+                    {
+                        tran.Rollback();
+                        return BadRequest("Studis nie istnieja");
+                    }
+                    int idstudies = (int)dr["IdStudies"];
+
+                    //3. Dodanie studenta
+                    com.CommandText = "INSERT INTO Student(IndexNumber, FirstName VALUES(@Index,@Fname";
+                    com.Parameters.AddWithValue("Index", request.IndexNumber);
+                    com.ExecuteNonQuery();
+
+                    tran.Commit();
+                } catch(SqlException e)
+                {
+                    tran.Rollback();
+                    return BadRequest(e);
+                }
+            } 
+
+            var response = new EnrollStudentResponse();
+            response.LastName = st.LastName;
+
+            return Ok(response);
         }
 
         // POST api/values
