@@ -57,9 +57,12 @@ namespace cw2.Controllers
                     if (!dr.Read())
                     {
                         tran.Rollback();
-                        return BadRequest("Studis nie istnieja");
+                        return BadRequest("Studia nie istnieja");
                     }
                     int idstudies = (int)dr["IdStudies"];
+
+                    //2. Czy istnieje enrollment?
+
 
                     //3. Dodanie studenta
                     com.CommandText = "INSERT INTO Student(IndexNumber, FirstName VALUES(@Index,@Fname";
@@ -78,6 +81,7 @@ namespace cw2.Controllers
             response.LastName = st.LastName;
 
             return Ok(response);
+            //return CreatedAtAction("enroll", enrollment);
         }
 
         // POST api/values
