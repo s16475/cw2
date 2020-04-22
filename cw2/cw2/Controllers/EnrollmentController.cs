@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
+using System.Globalization;
 using System.Net;
-using System.Threading.Tasks;
 using cw2.DTOs.Requests;
 using cw2.DTOs.Responses;
-using cw2.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace cw2.Controllers
@@ -23,7 +20,6 @@ namespace cw2.Controllers
         {
             EnrollStudentResponse esr = new EnrollStudentResponse() { };
 
-          
             using (var con = new SqlConnection(ConString))
             using (var com = new SqlCommand())
             {
@@ -35,6 +31,7 @@ namespace cw2.Controllers
                 {
 
                     //1. Czy studia istnieją?
+
                     com.CommandText = "SELECT IdStudy AS idStudies FROM Studies WHERE Name=@name";
                     com.Parameters.AddWithValue("name", request.Studies);
                     var dr = com.ExecuteReader();
@@ -49,7 +46,8 @@ namespace cw2.Controllers
                     int idStudies = (int)dr["idStudies"];
                     dr.Close();
 
-                    //2. Sprawdzenie czy nie występuje konflikt indeksów                  
+                    //2. Sprawdzenie czy nie występuje konflikt indeksów  
+                                    
                     com.CommandText = "SELECT IndexNumber FROM Student WHERE IndexNumber = '" + request.IndexNumber + "'"; 
                     dr = com.ExecuteReader();
                     if (dr.Read())
@@ -60,35 +58,36 @@ namespace cw2.Controllers
                     }
                     dr.Close();
 
-                    //3. Nadanie IdEnrollment
-                    int idEnrollment;
-                    com.CommandText = "SELECT IdEnrollment FROM Enrollment JOIN Studies ON " +
-                        "Enrollment.IdStudy = Studies.IdStudy WHERE Semester = 1 and Enrollment.IdStudy = " + idStudies;
-                    dr = com.ExecuteReader();
-                    if (dr.Read())
-                    {
-                        dr.Close();
-                        com.CommandText = "SELECT MAX(IdEnrollment)+1 AS idEnroll from Enrollment";
-                        dr = com.ExecuteReader();
-                        idEnrollment = (int)dr["idEnroll"];
+                    // 3.Nadanie i wstawienie IdEnrollment
 
-                    }
-                    else
+                    int idEnrollment;
+                    com.CommandText = "SELECT IdEnrollment FROM Enrollment WHERE IdEnrollment = " +
+                                            "(Select max(IdEnrollment) from Enrollment)";
+                    dr = com.ExecuteReader();
+                    if (!dr.Read())
                     {
                         idEnrollment = 1;
                         dr.Close();
-                    }
-
-                    //4. Wstawienie Enrollment                 
-                    com.CommandText = "INSERT INTO Enrollment(IdEnrollment,Semester,IdStudy,StartDate)" +
+                        com.CommandText = "INSERT INTO Enrollment(IdEnrollment,Semester,IdStudy,StartDate)" +
                         "  VALUES(" + idEnrollment + ", 1, " + idStudies + ",GetDate())";
+                        com.ExecuteNonQuery();
+                    }
+                    idEnrollment = (int)dr["idEnrollment"];
+                    dr.Close();
+
+                    //4. Wstawienie studenta
+
+                    string strDateFormat = "dd.MM.yyyy";
+                    DateTime BirthDate = DateTime.ParseExact(request.BirthDate.ToString(), strDateFormat, CultureInfo.InvariantCulture);
+
+                    com.CommandText = $"INSERT INTO Student VALUES (@IndexNumber, @FirstName, @LastName, @BirthDate, @IdEnrollment)";
+                    com.Parameters.AddWithValue("IndexNumber", request.IndexNumber);
+                    com.Parameters.AddWithValue("FirstName", request.FirstName);
+                    com.Parameters.AddWithValue("LastName", request.LastName);
+                    com.Parameters.AddWithValue("BirthDate", BirthDate);
+                    com.Parameters.AddWithValue("IdEnrollment", idEnrollment);
                     com.ExecuteNonQuery();
 
-                    //5. Wstawienie studenta
-                    com.CommandText = "INSERT INTO Student(IndexNumber, FirstName, LastName, BirthDate, IdEnrollment) " +
-                        "VALUES (" + request.IndexNumber + ", " + request.FirstName + ", " + request.LastName + ", " +
-                        request.BirthDate + ", " + idEnrollment + ") ";
-                    com.ExecuteNonQuery();
                     esr.IdEnrollment = idEnrollment;
                     esr.IdStudy = idStudies;
                     esr.Semester = 1;
