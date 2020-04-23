@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
 using System.Net;
 using cw2.DTOs.Requests;
 using cw2.DTOs.Responses;
+using cw2.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace cw2.Controllers
@@ -47,8 +50,8 @@ namespace cw2.Controllers
                     dr.Close();
 
                     //2. Sprawdzenie czy nie występuje konflikt indeksów  
-                                    
-                    com.CommandText = "SELECT IndexNumber FROM Student WHERE IndexNumber = '" + request.IndexNumber + "'"; 
+
+                    com.CommandText = "SELECT IndexNumber FROM Student WHERE IndexNumber = '" + request.IndexNumber + "'";
                     dr = com.ExecuteReader();
                     if (dr.Read())
                     {
@@ -103,6 +106,65 @@ namespace cw2.Controllers
                     return BadRequest(exc.Message);
                 }
             }
+        }
+
+        //zadanie 4.2 (5.2) - promocja na nowy semestr
+        [HttpPost("promotions")]
+        public IActionResult PromoteStudent(PromoteStudentRequest promote)
+        {
+            Enrollment enrollment = new Enrollment();
+            using (SqlConnection con = new SqlConnection(ConString))
+            using (SqlCommand com = new SqlCommand())
+            {
+                com.Connection = con;
+                con.Open();
+
+
+                com.Parameters.AddWithValue("Studies", promote.Studies);
+                com.Parameters.AddWithValue("Semester", promote.Semester);
+                var wynik = UseProcedure("PromoteStudents", com);
+
+                if (wynik[0][0].Equals("404"))
+                {
+                    return new NotFoundResult();
+                }
+                enrollment.IdEnrollment = wynik[0][0];
+                enrollment.IdStudy = wynik[0][2];
+                enrollment.Semester = wynik[0][1];
+                enrollment.StartDate = wynik[0][3];
+
+            }
+
+            ObjectResult objectResult = new ObjectResult(enrollment);
+            objectResult.StatusCode = 201;
+            return objectResult;
+
+        }
+
+        public List<string[]> UseProcedure(string name, SqlCommand com)
+        {
+            List<string[]> wynik = new List<string[]>();
+
+            com.CommandType = CommandType.StoredProcedure;
+            com.CommandText = name;
+            if (com.Connection.State != ConnectionState.Open) com.Connection.Open();
+
+            var dr = com.ExecuteReader();
+
+            while (dr.Read())
+            {
+                string[] tmp = new string[dr.FieldCount];
+                for (int i = 0; i < dr.FieldCount; i++)
+                {
+                    tmp[i] = dr.GetValue(i).ToString();
+                }
+                wynik.Add(tmp);
+            }
+            dr.Close();
+            com.CommandType = CommandType.Text;
+            com.Parameters.Clear();
+
+            return wynik;
         }
     }
 }
