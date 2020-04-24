@@ -16,5 +16,6 @@
     <Folder Include="DTOs\Responses\" />
     <Folder Include="DAL\" />
     <Folder Include="SQL\" />
+    <Folder Include="Services\" />
   </ItemGroup>
 </Project>
