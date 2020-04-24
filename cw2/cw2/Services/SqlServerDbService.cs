@@ -59,8 +59,8 @@ namespace cw2.Services
                     // 3.Nadanie i wstawienie IdEnrollment
 
                     int idEnrollment;
-                    com.CommandText = "SELECT IdEnrollment FROM Enrollment WHERE IdEnrollment = " +
-                                            "(Select max(IdEnrollment) from Enrollment)";
+                    com.CommandText = "SELECT IdEnrollment FROM Enrollment WHERE IdStudy = " + idStudies + " AND Semester = 1";
+
                     dr = com.ExecuteReader();
                     if (!dr.Read())
                     {
